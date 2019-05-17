@@ -14,7 +14,11 @@ interface MainView : TiView {
 
     fun requestReadSmsPermission(requestCode: Int)
 
-    fun navigateToMainFragment()
-
     fun getPermissionResultObservable(): Observable<PermissionResult>
+
+    fun getPermissionAlertDialogNeutralClickObservable(): Observable<Any>
+
+    fun showPermissionAlertDialog()
+
+    fun exitApp()
 }

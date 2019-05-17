@@ -6,17 +6,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.jakewharton.rxrelay2.PublishRelay
 import de.infoware.smsparser.R
+import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.permission.PermissionResult
+import de.infoware.smsparser.storage.DestinationDatabase
 import io.reactivex.Observable
 import net.grandcentrix.thirtyinch.TiFragment
 
-class MainFragment :
-    TiFragment<MainPresenter, MainView>(),
-    MainView {
+
+class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
+    private val permissionAlertDialogNeutralClickRelay = PublishRelay.create<Any>()
+    override fun getPermissionAlertDialogNeutralClickObservable(): Observable<Any> {
+        return permissionAlertDialogNeutralClickRelay
+    }
+
+    override fun showPermissionAlertDialog() {
+        val builder = AlertDialog.Builder(context!!)
+        builder.setMessage(R.string.permission_dialog_message)
+            .setTitle(R.string.permission_dialog_title)
+        builder.setNeutralButton(R.string.ok) { _, _ ->
+            permissionAlertDialogNeutralClickRelay.accept(Any())
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    override fun exitApp() {
+        activity?.finish()
+    }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -25,8 +45,20 @@ class MainFragment :
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
-    override fun navigateToMainFragment() {
-        return
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val database = DestinationDatabase.getInstance(context!!)
+        Thread {
+
+            //            database.destinationDao().insert(DestinationEntity(0.0, 0.0, "for_fun"))
+//            database.destinationDao().insert(DestinationEntity(0.0, 0.0, "for_fun"))
+//            var entries = database.destinationDao().getAll()
+//            database.destinationDao().delete(entries[0])
+//            database.destinationDao().delete(entries[1])
+            val entries = DestinationLoader(database).execute(Any()).blockingGet()
+            println(entries)
+        }.start()
+
     }
 
     override fun requestReceiveSmsPermission(requestCode: Int) {
@@ -38,9 +70,7 @@ class MainFragment :
     }
 
     private fun requestPermission(permission: String, requestCode: Int) {
-        ActivityCompat.requestPermissions(
-            activity!! as MainActivity, arrayOf(permission), requestCode
-        )
+        requestPermissions(arrayOf(permission), requestCode)
     }
 
     override fun checkReceiveSmsPermission(): Boolean {
@@ -60,7 +90,7 @@ class MainFragment :
     }
 
 
-    val permissionResultRelay = PublishRelay.create<PermissionResult>()
+    private val permissionResultRelay = PublishRelay.create<PermissionResult>()
     override fun getPermissionResultObservable(): Observable<PermissionResult> {
         return permissionResultRelay
     }

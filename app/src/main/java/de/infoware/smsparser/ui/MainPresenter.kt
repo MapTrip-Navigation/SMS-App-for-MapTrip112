@@ -2,9 +2,9 @@ package de.infoware.smsparser.ui
 
 import android.content.pm.PackageManager
 import de.infoware.smsparser.permission.PermissionResult
+import io.reactivex.Observable
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
-import io.reactivex.Observable
 
 class MainPresenter : TiPresenter<MainView>() {
 
@@ -17,17 +17,14 @@ class MainPresenter : TiPresenter<MainView>() {
     private val receiveSmsRequestCode = 100
     private val readSmsRequestCode = 101
 
-    var receiveSmsAllowed = false
-    var readSmsAllowed = false
+    private var receiveSmsAllowed = false
+    private var readSmsAllowed = false
 
     override fun onAttachView(view: MainView) {
         super.onAttachView(view)
 
         checkPermissions(view)
 
-        if (receiveSmsAllowed && readSmsAllowed) {
-            view.navigateToMainFragment()
-        }
         if (!receiveSmsAllowed) {
             view.requestReceiveSmsPermission(receiveSmsRequestCode)
         }
@@ -42,25 +39,30 @@ class MainPresenter : TiPresenter<MainView>() {
     private fun subscribeToUiEvents(view: MainView) {
         handler.manageViewDisposable(view.getPermissionResultObservable()
             .subscribe {
-                processPermissionResult(it)
+                processPermissionResult(view, it)
+            }
+        )
+
+        handler.manageViewDisposable(view.getPermissionAlertDialogNeutralClickObservable()
+            .subscribe {
+                view.exitApp()
             }
         )
     }
 
-    private fun processPermissionResult(permissionResult: PermissionResult) {
+    private fun processPermissionResult(view: MainView, permissionResult: PermissionResult) {
         val requestCode = permissionResult.requestCode
         val grantResults = permissionResult.grantResults
 
         // Check if any permission is granted in general and when granted - check which one.
         if (isPermissionGranted(grantResults)) {
             when (requestCode) {
-                receiveSmsRequestCode -> {
-                    receiveSmsAllowed = true
-                }
-                readSmsRequestCode -> {
-                    readSmsAllowed = true
-                }
+                receiveSmsRequestCode -> receiveSmsAllowed = true
+
+                readSmsRequestCode -> readSmsAllowed = true
             }
+        } else {
+            view.showPermissionAlertDialog()
         }
     }
 

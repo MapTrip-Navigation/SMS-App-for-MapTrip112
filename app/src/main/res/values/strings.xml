@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SmsParser</string>
+    <string name="permission_dialog_title">Achtung!</string>
+    <string name="permission_dialog_message">Für ein ordnungsgemäßes Funktionieren der App sind die erforderlichen
+        Berechtigungen erforderlich. Jetzt wird die App geschlossen.
+        Bitte starten Sie es neu und erteilen Sie die Berechtigungen.
+    </string>
+    <string name="ok">OK</string>
+    <string name="maptrip_start_fail">Maptrip konnte nicht gestartet werden</string>
 </resources>
