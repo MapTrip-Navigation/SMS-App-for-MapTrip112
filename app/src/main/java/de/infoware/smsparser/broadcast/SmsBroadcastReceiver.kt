@@ -4,22 +4,22 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsMessage
-import de.infoware.smsparser.DestinationInfo
 import de.infoware.smsparser.SmsInfo
 import de.infoware.smsparser.domain.DestinationSaver
 import de.infoware.smsparser.processor.SmsProcessorFactory
 import de.infoware.smsparser.storage.DestinationDatabase
 
+
 class SmsBroadcastReceiver : BroadcastReceiver() {
     companion object {
-        const val MAPTRIP_APP_LICENSE_PACKAGE = "de.infoware.maptrip.navi.license"
+        const val SMS_PARSER_APP_PACKAGE = "de.infoware.smsparser"
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
 //        const val DUMMY = "51.2123544, 6.12548543;Zimmerbrand Musterstrasse 26 3:OG"
     }
+
 
     @SuppressLint("CheckResult")
     override fun onReceive(context: Context, intent: Intent?) {
@@ -31,9 +31,7 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                     .execute(it)
                     .subscribe()
             }
-            .subscribe { waypoint ->
-                launchMapTrip(context, waypoint)
-            }
+            .subscribe { _ -> launchSmsApp(context) }
     }
 
     @Suppress("DEPRECATION")
@@ -65,27 +63,10 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
     }
 
 
-    private fun launchMapTrip(context: Context, destinationInfo: DestinationInfo) {
-//        val intent = context.packageManager.getLaunchIntentForPackage(MAPTRIP_APP_LICENSE_PACKAGE)
-//
-//        try {
-//            context.startActivity(intent)
-//            Api.init()
-//            Navigation.appendDestinationCoordinate(destinationInfo.lat, destinationInfo.lon)
-//            Navigation.startNavigation()
-//        } catch (eToo: ActivityNotFoundException) {
-//            Toast.makeText(context, R.string.maptrip_start_fail, Toast.LENGTH_LONG).show()
-//        }
-
-
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(
-                "maptrip://navigate?latitude=${destinationInfo.lat}" +
-                        "&longitude=${destinationInfo.lon}"
-            )
-        )
-        context.startActivity(intent)
+    private fun launchSmsApp(context: Context) {
+        val pm = context.packageManager
+        val launchIntent = pm.getLaunchIntentForPackage(SMS_PARSER_APP_PACKAGE)
+        context.startActivity(launchIntent)
     }
 
 }
