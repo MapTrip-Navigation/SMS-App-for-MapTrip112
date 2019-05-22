@@ -7,7 +7,7 @@ import io.reactivex.Single
 
 @Dao
 interface DestinationDao {
-    @Query("SELECT * FROM destination")
+    @Query("SELECT * FROM destination  ORDER BY added_timestamp DESC")
     fun getAll(): Single<List<DestinationEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

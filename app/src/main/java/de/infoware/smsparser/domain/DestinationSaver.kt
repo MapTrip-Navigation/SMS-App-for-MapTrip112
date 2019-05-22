@@ -9,7 +9,7 @@ import io.reactivex.schedulers.Schedulers
 class DestinationSaver(val repository: DestinationDatabase) : UseCase<DestinationInfo, Completable> {
     override fun execute(param: DestinationInfo): Completable {
         return repository.destinationDao()
-            .insert(DestinationEntity(param.lat, param.lon, param.reason))
+            .insert(DestinationEntity(param.lat, param.lon, param.reason, param.addedTimestamp))
             .subscribeOn(Schedulers.io())
     }
 }
