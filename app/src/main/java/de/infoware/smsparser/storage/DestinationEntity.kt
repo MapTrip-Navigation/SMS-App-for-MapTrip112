@@ -8,8 +8,11 @@ import androidx.room.PrimaryKey
 data class DestinationEntity(
     @ColumnInfo(name = "lat") val lat: Double,
     @ColumnInfo(name = "lon") val lon: Double,
-    @ColumnInfo(name = "reason") val reason: String
+    @ColumnInfo(name = "reason") val reason: String,
+    @ColumnInfo(name = "added_timestamp") var addedTimestamp: Long,
+    @ColumnInfo(name = "already_navigated") var alreadyNavigated: Boolean = false
 ) {
     @PrimaryKey(autoGenerate = true)
     var uid: Int = 0
+
 }

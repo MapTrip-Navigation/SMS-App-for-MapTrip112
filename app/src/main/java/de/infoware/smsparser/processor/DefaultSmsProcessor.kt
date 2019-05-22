@@ -2,11 +2,13 @@ package de.infoware.smsparser.processor
 
 import de.infoware.smsparser.DestinationInfo
 import io.reactivex.Single
+import java.util.*
 
-class DefaultSmsProcessor : SmsProcessor {
+class DefaultSmsProcessor() : SmsProcessor {
+
 
     override fun execute(param: String?): Single<DestinationInfo> {
-        var waypoint = DestinationInfo(0.0, 0.0, "")
+        var waypoint = DestinationInfo(0.0, 0.0, "", 0L, false)
 
         var lat = 0.0
         var lon = 0.0
@@ -24,7 +26,7 @@ class DefaultSmsProcessor : SmsProcessor {
                 }
             }
             reason = messageParts.last()
-            waypoint = DestinationInfo(lat, lon, reason)
+            waypoint = DestinationInfo(lat, lon, reason, Calendar.getInstance().timeInMillis)
 
         }
         return Single.just(waypoint)

@@ -16,7 +16,13 @@ class DestinationLoader(val repository: DestinationDatabase) : UseCase<Any, Sing
                     val result = ArrayList<DestinationInfo>()
                     it.forEach { entity ->
                         result.add(
-                            DestinationInfo(entity.lat, entity.lon, entity.reason)
+                            DestinationInfo(
+                                entity.lat,
+                                entity.lon,
+                                entity.reason,
+                                entity.addedTimestamp,
+                                entity.alreadyNavigated
+                            )
                         )
                     }
                     emitter.onSuccess(result)
