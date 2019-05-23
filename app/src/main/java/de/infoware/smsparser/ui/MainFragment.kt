@@ -8,13 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxrelay2.PublishRelay
+import de.infoware.smsparser.DestinationInfo
 import de.infoware.smsparser.R
-import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.permission.PermissionResult
-import de.infoware.smsparser.repository.LocalDestinationRepository
+import de.infoware.smsparser.storage.DataSource
 import de.infoware.smsparser.storage.DestinationDatabase
+import de.infoware.smsparser.ui.adapter.DestinationInfoAdapter
 import io.reactivex.Observable
+import kotlinx.android.synthetic.main.fragment_main.*
 import net.grandcentrix.thirtyinch.TiFragment
 
 
@@ -39,6 +43,10 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         activity?.finish()
     }
 
+    override fun getDataSource(): DataSource {
+        return DestinationDatabase.getInstance(context!!)
+    }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -46,20 +54,29 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val database = DestinationDatabase.getInstance(context!!)
-        Thread {
 
-            //            database.destinationDao().insert(DestinationEntity(0.0, 0.0, "for_fun"))
-//            database.destinationDao().insert(DestinationEntity(0.0, 0.0, "for_fun"))
-//            var entries = database.destinationDao().getAll()
-//            database.destinationDao().delete(entries[0])
-//            database.destinationDao().delete(entries[1])
-            val entries = DestinationLoader(LocalDestinationRepository(database)).execute(Any()).blockingGet()
-            println(entries)
-        }.start()
+        initializeRecyclerView()
+    }
 
+    private val viewAdapter = DestinationInfoAdapter()
+    private fun initializeRecyclerView() {
+        val layoutManager = LinearLayoutManager(context)
+
+        rvDestinationInfo.layoutManager = layoutManager
+        rvDestinationInfo.adapter = viewAdapter
+
+        val dividerItemDecoration = DividerItemDecoration(
+            context,
+            layoutManager.orientation
+        )
+        rvDestinationInfo.addItemDecoration(dividerItemDecoration)
+    }
+
+    override fun updateDestinationInfoList(newDestinationInfoList: List<DestinationInfo>) {
+        viewAdapter.replaceEntries(newDestinationInfoList)
     }
 
     override fun requestReceiveSmsPermission(requestCode: Int) {
