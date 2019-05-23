@@ -10,6 +10,7 @@ import android.telephony.SmsMessage
 import de.infoware.smsparser.SmsInfo
 import de.infoware.smsparser.domain.DestinationSaver
 import de.infoware.smsparser.processor.SmsProcessorFactory
+import de.infoware.smsparser.repository.LocalDestinationRepository
 import de.infoware.smsparser.storage.DestinationDatabase
 
 
@@ -27,7 +28,7 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         SmsProcessorFactory.getSmsProcessor(message.smsSender)
             .execute(message.smsBody)
             .doOnSuccess {
-                DestinationSaver(DestinationDatabase.getInstance(context))
+                DestinationSaver(LocalDestinationRepository(DestinationDatabase.getInstance(context)))
                     .execute(it)
                     .subscribe()
             }

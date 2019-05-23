@@ -8,7 +8,7 @@ class DefaultSmsProcessor() : SmsProcessor {
 
 
     override fun execute(param: String?): Single<DestinationInfo> {
-        var waypoint = DestinationInfo(0.0, 0.0, "", 0L, false)
+        var destinationInfo = DestinationInfo(0.0, 0.0, "", 0L, false)
 
         var lat = 0.0
         var lon = 0.0
@@ -26,10 +26,10 @@ class DefaultSmsProcessor() : SmsProcessor {
                 }
             }
             reason = messageParts.last()
-            waypoint = DestinationInfo(lat, lon, reason, Calendar.getInstance().timeInMillis)
+            destinationInfo = DestinationInfo(lat, lon, reason, Calendar.getInstance().timeInMillis)
 
         }
-        return Single.just(waypoint)
+        return Single.just(destinationInfo)
     }
 
 }
