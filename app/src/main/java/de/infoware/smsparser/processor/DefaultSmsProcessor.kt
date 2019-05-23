@@ -6,6 +6,7 @@ import java.util.*
 
 class DefaultSmsProcessor() : SmsProcessor {
 
+    private val calendar = Calendar.getInstance()
 
     override fun execute(param: String?): Single<DestinationInfo> {
         var destinationInfo = DestinationInfo(0.0, 0.0, "", 0L, false)
@@ -26,7 +27,7 @@ class DefaultSmsProcessor() : SmsProcessor {
                 }
             }
             reason = messageParts.last()
-            destinationInfo = DestinationInfo(lat, lon, reason, Calendar.getInstance().timeInMillis)
+            destinationInfo = DestinationInfo(lat, lon, reason, calendar.timeInMillis)
 
         }
         return Single.just(destinationInfo)

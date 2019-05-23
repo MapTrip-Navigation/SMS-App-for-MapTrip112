@@ -1,8 +1,14 @@
 package de.infoware.smsparser.ui
 
 import android.content.pm.PackageManager
+import de.infoware.smsparser.DestinationInfo
+import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.permission.PermissionResult
+import de.infoware.smsparser.repository.LocalDestinationRepository
+import de.infoware.smsparser.storage.DestinationDatabase
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 
@@ -32,6 +38,12 @@ class MainPresenter : TiPresenter<MainView>() {
         if (!readSmsAllowed) {
             view.requestReadSmsPermission(readSmsRequestCode)
         }
+
+        handler.manageViewDisposable(loadDestinationInfo(view)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { destinationInfoList ->
+                view.updateDestinationInfoList(destinationInfoList)
+            })
 
         subscribeToUiEvents(view)
     }
@@ -75,5 +87,14 @@ class MainPresenter : TiPresenter<MainView>() {
         return grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun loadDestinationInfo(view: MainView): Single<List<DestinationInfo>> {
+        val dataSource = view.getDataSource()
+        if (dataSource is DestinationDatabase) {
+            return DestinationLoader(
+                LocalDestinationRepository(dataSource)
+            ).execute(Any())
+        }
+        return Single.fromCallable { ArrayList<DestinationInfo>() }
+    }
 
 }
