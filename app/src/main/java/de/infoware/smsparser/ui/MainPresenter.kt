@@ -2,6 +2,7 @@ package de.infoware.smsparser.ui
 
 import android.content.pm.PackageManager
 import de.infoware.smsparser.DestinationInfo
+import de.infoware.smsparser.domain.DestinationEraser
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.domain.DestinationUpdater
 import de.infoware.smsparser.permission.PermissionResult
@@ -12,6 +13,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 import java.util.concurrent.TimeUnit
@@ -47,7 +49,7 @@ class MainPresenter : TiPresenter<MainView>() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { destinationInfoList ->
                 view.updateDestinationInfoList(destinationInfoList)
-                if (!destinationInfoList[0].alreadyNavigated) {
+                if (destinationInfoList.isNotEmpty() && !destinationInfoList[0].alreadyNavigated) {
                     view.showNavigationDialog(destinationInfoList[0])
                 }
             })
@@ -57,23 +59,17 @@ class MainPresenter : TiPresenter<MainView>() {
 
     private fun subscribeToUiEvents(view: MainView) {
         handler.manageViewDisposable(view.getPermissionResultObservable()
-            .subscribe {
-                processPermissionResult(view, it)
-            }
+            .subscribe { processPermissionResult(view, it) }
         )
 
         handler.manageViewDisposable(view.getPermissionAlertDialogNeutralClickObservable()
-            .subscribe {
-                view.exitApp()
-            }
+            .subscribe { view.exitApp() }
         )
 
         handler.manageViewDisposable(view.getOnDestinationInfoClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                view.showNavigationDialog(it)
-            }
+            .subscribe { view.showNavigationDialog(it) }
         )
 
         handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
@@ -81,6 +77,23 @@ class MainPresenter : TiPresenter<MainView>() {
             .doOnNext { view.startMapTripWithDestinationInfo(it) }
             .flatMapCompletable { updateNavigatedStatus(view, it, true) }
             .subscribe()
+        )
+
+        handler.manageViewDisposable(view.getOnDeleteApprovedClickObservable()
+            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { view.updateDestinationInfoList(ArrayList()) }
+            .observeOn(Schedulers.io())
+            .flatMapCompletable { deleteAllEntriesFromDataStore(view) }
+            .subscribe()
+        )
+
+        handler.manageViewDisposable(view.getOnDeleteMenuClickObservable()
+            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.showDeleteListDialog()
+            }
         )
 
     }
@@ -113,9 +126,7 @@ class MainPresenter : TiPresenter<MainView>() {
     private fun loadDestinationInfo(view: MainView): Single<List<DestinationInfo>> {
         val dataSource = view.getDataSource()
         if (dataSource is DestinationDatabase) {
-            return DestinationLoader(
-                LocalDestinationRepository(dataSource)
-            ).execute(Any())
+            return DestinationLoader(LocalDestinationRepository(dataSource)).execute(Any())
         }
         return Single.fromCallable { ArrayList<DestinationInfo>() }
     }
@@ -127,10 +138,16 @@ class MainPresenter : TiPresenter<MainView>() {
         destinationInfo.alreadyNavigated = navigatedStatus
         val dataSource = view.getDataSource()
         if (dataSource is DestinationDatabase) {
-            return DestinationUpdater(
-                LocalDestinationRepository(dataSource)
-            ).execute(destinationInfo)
+            return DestinationUpdater(LocalDestinationRepository(dataSource)).execute(destinationInfo)
         }
-        return Completable.fromCallable { Any() }
+        return Completable.complete()
+    }
+
+    private fun deleteAllEntriesFromDataStore(view: MainView): Completable {
+        val dataSource = view.getDataSource()
+        if (dataSource is DestinationDatabase) {
+            return DestinationEraser(LocalDestinationRepository(dataSource)).execute(Any())
+        }
+        return Completable.complete()
     }
 }
