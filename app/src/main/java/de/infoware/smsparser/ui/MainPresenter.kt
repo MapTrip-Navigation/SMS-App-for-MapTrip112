@@ -3,14 +3,18 @@ package de.infoware.smsparser.ui
 import android.content.pm.PackageManager
 import de.infoware.smsparser.DestinationInfo
 import de.infoware.smsparser.domain.DestinationLoader
+import de.infoware.smsparser.domain.DestinationUpdater
 import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.repository.LocalDestinationRepository
 import de.infoware.smsparser.storage.DestinationDatabase
+import de.infoware.smsparser.ui.util.clickDebounceInMillis
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
+import java.util.concurrent.TimeUnit
 
 class MainPresenter : TiPresenter<MainView>() {
 
@@ -43,6 +47,9 @@ class MainPresenter : TiPresenter<MainView>() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { destinationInfoList ->
                 view.updateDestinationInfoList(destinationInfoList)
+                if (!destinationInfoList[0].alreadyNavigated) {
+                    view.showNavigationDialog(destinationInfoList[0])
+                }
             })
 
         subscribeToUiEvents(view)
@@ -60,6 +67,22 @@ class MainPresenter : TiPresenter<MainView>() {
                 view.exitApp()
             }
         )
+
+        handler.manageViewDisposable(view.getOnDestinationInfoClickObservable()
+            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.showNavigationDialog(it)
+            }
+        )
+
+        handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
+            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .doOnNext { view.startMapTripWithDestinationInfo(it) }
+            .flatMapCompletable { updateNavigatedStatus(view, it, true) }
+            .subscribe()
+        )
+
     }
 
     private fun processPermissionResult(view: MainView, permissionResult: PermissionResult) {
@@ -97,4 +120,17 @@ class MainPresenter : TiPresenter<MainView>() {
         return Single.fromCallable { ArrayList<DestinationInfo>() }
     }
 
+    private fun updateNavigatedStatus(
+        view: MainView, destinationInfo: DestinationInfo,
+        navigatedStatus: Boolean
+    ): Completable {
+        destinationInfo.alreadyNavigated = navigatedStatus
+        val dataSource = view.getDataSource()
+        if (dataSource is DestinationDatabase) {
+            return DestinationUpdater(
+                LocalDestinationRepository(dataSource)
+            ).execute(destinationInfo)
+        }
+        return Completable.fromCallable { Any() }
+    }
 }

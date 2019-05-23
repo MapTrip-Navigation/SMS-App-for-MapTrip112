@@ -7,6 +7,11 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) : DestinationRepository {
+    override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable {
+        return destinationDatabase
+            .destinationDao()
+            .updateNavigatedStatus(destinationInfo.uidInDataSource, destinationInfo.alreadyNavigated)
+    }
 
     override fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable {
         return destinationDatabase
@@ -35,7 +40,8 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
                                 entity.lon,
                                 entity.reason,
                                 entity.addedTimestamp,
-                                entity.alreadyNavigated
+                                entity.alreadyNavigated,
+                                entity.uid
                             )
                         )
                     }

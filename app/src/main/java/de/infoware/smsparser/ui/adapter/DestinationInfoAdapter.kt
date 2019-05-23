@@ -21,6 +21,8 @@ class DestinationInfoAdapter :
 
     private var destinationInfoList: List<DestinationInfo> = ArrayList()
 
+    private lateinit var clickEvent: (DestinationInfo) -> Unit
+
     class DestinationInfoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var destinationReason: TextView = itemView.findViewById(R.id.tvReason)
         var destinationAddedTime: TextView = itemView.findViewById(R.id.tvTimeAdded)
@@ -46,11 +48,18 @@ class DestinationInfoAdapter :
 
         calendar.timeInMillis = currentDestinationInfo.addedTimestamp
         holder.destinationAddedTime.text = df.format(calendar.time)
+        holder.itemView.setOnClickListener {
+            clickEvent(currentDestinationInfo)
+        }
     }
 
     fun replaceEntries(newDestinationInfoList: List<DestinationInfo>) {
         this.destinationInfoList = newDestinationInfoList
         notifyDataSetChanged()
+    }
+
+    fun setOnDestinationInfoClickListener(emitClickEvent: (DestinationInfo) -> Unit) {
+        this.clickEvent = emitClickEvent
     }
 
     override fun getItemCount() = destinationInfoList.size

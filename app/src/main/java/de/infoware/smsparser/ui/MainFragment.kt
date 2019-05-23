@@ -1,7 +1,9 @@
 package de.infoware.smsparser.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +25,46 @@ import net.grandcentrix.thirtyinch.TiFragment
 
 
 class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
+
+    override fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo) {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(
+                "maptrip://navigate?latitude=${destinationInfo.lat}" +
+                        "&longitude=${destinationInfo.lon}"
+            )
+        )
+        context?.startActivity(intent)
+    }
+
+
+    private var onStartNavigationClickPublishRelay = PublishRelay.create<DestinationInfo>()
+
+    override fun getOnStartNavigationClickObservable(): Observable<DestinationInfo> {
+        return onStartNavigationClickPublishRelay
+    }
+
+    override fun showNavigationDialog(destinationInfo: DestinationInfo) {
+        val builder = AlertDialog.Builder(activity!!)
+
+        builder.setMessage(destinationInfo.reason)
+            .setTitle(R.string.navigation_start_dialog_title)
+
+        builder.setNegativeButton(R.string.cancel) { _, _ -> }
+
+        builder.setPositiveButton(R.string.start_navigation) { _, _ ->
+            onStartNavigationClickPublishRelay.accept(destinationInfo)
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private var onDestinationInfoClickPublishRelay = PublishRelay.create<DestinationInfo>()
+
+    override fun getOnDestinationInfoClickObservable(): Observable<DestinationInfo> {
+        return onDestinationInfoClickPublishRelay
+    }
+
     private val permissionAlertDialogNeutralClickRelay = PublishRelay.create<Any>()
     override fun getPermissionAlertDialogNeutralClickObservable(): Observable<Any> {
         return permissionAlertDialogNeutralClickRelay
@@ -58,15 +100,22 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initializeAdapter()
         initializeRecyclerView()
     }
 
-    private val viewAdapter = DestinationInfoAdapter()
+    private lateinit var adapter: DestinationInfoAdapter
+    private fun initializeAdapter() {
+        adapter = DestinationInfoAdapter()
+        adapter.setOnDestinationInfoClickListener(onDestinationInfoClickPublishRelay::accept)
+    }
+
+
     private fun initializeRecyclerView() {
         val layoutManager = LinearLayoutManager(context)
 
         rvDestinationInfo.layoutManager = layoutManager
-        rvDestinationInfo.adapter = viewAdapter
+        rvDestinationInfo.adapter = adapter
 
         val dividerItemDecoration = DividerItemDecoration(
             context,
@@ -76,7 +125,7 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
     }
 
     override fun updateDestinationInfoList(newDestinationInfoList: List<DestinationInfo>) {
-        viewAdapter.replaceEntries(newDestinationInfoList)
+        adapter.replaceEntries(newDestinationInfoList)
     }
 
     override fun requestReceiveSmsPermission(requestCode: Int) {
