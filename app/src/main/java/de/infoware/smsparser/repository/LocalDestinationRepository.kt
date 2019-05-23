@@ -7,6 +7,13 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) : DestinationRepository {
+
+    override fun deleteAll(): Completable {
+        return destinationDatabase
+            .destinationDao()
+            .deleteAll()
+    }
+
     override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable {
         return destinationDatabase
             .destinationDao()

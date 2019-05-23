@@ -10,4 +10,6 @@ interface DestinationRepository {
     fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable
 
     fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable
+
+    fun deleteAll(): Completable
 }

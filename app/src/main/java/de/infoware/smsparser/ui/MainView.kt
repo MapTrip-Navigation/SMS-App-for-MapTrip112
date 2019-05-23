@@ -34,5 +34,11 @@ interface MainView : TiView {
 
     fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo)
 
+    fun getOnDeleteMenuClickObservable(): Observable<Any>
+
+    fun getOnDeleteApprovedClickObservable(): Observable<Any>
+
+    fun showDeleteListDialog()
+
     fun exitApp()
 }

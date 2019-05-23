@@ -5,9 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -25,6 +23,26 @@ import net.grandcentrix.thirtyinch.TiFragment
 
 
 class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
+    private var onDeleteApprovedClickPublishRelay = PublishRelay.create<Any>()
+
+    override fun getOnDeleteApprovedClickObservable(): Observable<Any> {
+        return onDeleteApprovedClickPublishRelay
+    }
+
+    override fun showDeleteListDialog() {
+        val builder = AlertDialog.Builder(activity!!)
+
+        builder.setMessage(R.string.delete_list)
+            .setTitle(R.string.attention)
+
+        builder.setNegativeButton(R.string.cancel) { _, _ -> }
+
+        builder.setPositiveButton(R.string.ok) { _, _ ->
+            onDeleteApprovedClickPublishRelay.accept(Any())
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
 
     override fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo) {
         val intent = Intent(
@@ -37,6 +55,31 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         context?.startActivity(intent)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.fragment_main, menu)
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    private var onDeleteMenuClickPublishRelay = PublishRelay.create<Any>()
+
+    override fun getOnDeleteMenuClickObservable(): Observable<Any> {
+        return onDeleteMenuClickPublishRelay
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        super.onOptionsItemSelected(item)
+        if (item.itemId == R.id.menu_main_delete) {
+            onDeleteMenuClickPublishRelay.accept(Any())
+        }
+
+        return true
+    }
 
     private var onStartNavigationClickPublishRelay = PublishRelay.create<DestinationInfo>()
 
@@ -73,7 +116,7 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
     override fun showPermissionAlertDialog() {
         val builder = AlertDialog.Builder(context!!)
         builder.setMessage(R.string.permission_dialog_message)
-            .setTitle(R.string.permission_dialog_title)
+            .setTitle(R.string.attention)
         builder.setNeutralButton(R.string.ok) { _, _ ->
             permissionAlertDialogNeutralClickRelay.accept(Any())
         }
