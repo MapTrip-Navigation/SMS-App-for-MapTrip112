@@ -12,6 +12,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import de.infoware.smsparser.R
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.permission.PermissionResult
+import de.infoware.smsparser.repository.LocalDestinationRepository
 import de.infoware.smsparser.storage.DestinationDatabase
 import io.reactivex.Observable
 import net.grandcentrix.thirtyinch.TiFragment
@@ -55,7 +56,7 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
 //            var entries = database.destinationDao().getAll()
 //            database.destinationDao().delete(entries[0])
 //            database.destinationDao().delete(entries[1])
-            val entries = DestinationLoader(database).execute(Any()).blockingGet()
+            val entries = DestinationLoader(LocalDestinationRepository(database)).execute(Any()).blockingGet()
             println(entries)
         }.start()
 

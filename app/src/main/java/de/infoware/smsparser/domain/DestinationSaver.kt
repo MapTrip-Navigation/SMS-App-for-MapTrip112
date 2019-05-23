@@ -1,15 +1,14 @@
 package de.infoware.smsparser.domain
 
 import de.infoware.smsparser.DestinationInfo
-import de.infoware.smsparser.storage.DestinationDatabase
-import de.infoware.smsparser.storage.DestinationEntity
+import de.infoware.smsparser.repository.DestinationRepository
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 
-class DestinationSaver(val repository: DestinationDatabase) : UseCase<DestinationInfo, Completable> {
+class DestinationSaver(private val repository: DestinationRepository) : UseCase<DestinationInfo, Completable> {
     override fun execute(param: DestinationInfo): Completable {
-        return repository.destinationDao()
-            .insert(DestinationEntity(param.lat, param.lon, param.reason, param.addedTimestamp))
+        return repository
+            .insertDestinationInfo(param)
             .subscribeOn(Schedulers.io())
     }
 }
