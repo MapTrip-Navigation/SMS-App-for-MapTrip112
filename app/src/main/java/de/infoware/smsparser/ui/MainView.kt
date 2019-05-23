@@ -26,5 +26,13 @@ interface MainView : TiView {
 
     fun updateDestinationInfoList(newDestinationInfoList: List<DestinationInfo>)
 
+    fun getOnDestinationInfoClickObservable(): Observable<DestinationInfo>
+
+    fun getOnStartNavigationClickObservable(): Observable<DestinationInfo>
+
+    fun showNavigationDialog(destinationInfo: DestinationInfo)
+
+    fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo)
+
     fun exitApp()
 }

@@ -18,4 +18,7 @@ interface DestinationDao {
 
     @Delete
     fun delete(destinationEntity: DestinationEntity): Completable
+
+    @Query("UPDATE destination SET already_navigated = :alreadyNavigated WHERE uid = :uid")
+    fun updateNavigatedStatus(uid: Int, alreadyNavigated: Boolean): Completable
 }

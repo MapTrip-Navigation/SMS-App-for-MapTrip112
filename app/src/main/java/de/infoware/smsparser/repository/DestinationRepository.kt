@@ -8,4 +8,6 @@ interface DestinationRepository {
     fun getAllDestinationInfo(): Single<List<DestinationInfo>>
 
     fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable
+
+    fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable
 }
