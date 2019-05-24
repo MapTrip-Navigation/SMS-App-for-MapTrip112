@@ -2,6 +2,7 @@ package de.infoware.smsparser.repository
 
 import de.infoware.smsparser.DestinationInfo
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 interface DestinationRepository {
@@ -9,7 +10,7 @@ interface DestinationRepository {
 
     fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable
 
-    fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable
+    fun updateNavigatedStatus(destinationInfo: DestinationInfo): Maybe<Int>
 
-    fun deleteAll(): Completable
+    fun deleteAll(): Maybe<Int>
 }

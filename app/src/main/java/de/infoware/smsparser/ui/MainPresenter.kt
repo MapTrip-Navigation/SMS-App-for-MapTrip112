@@ -9,11 +9,10 @@ import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.repository.LocalDestinationRepository
 import de.infoware.smsparser.storage.DestinationDatabase
 import de.infoware.smsparser.ui.util.clickDebounceInMillis
-import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 import java.util.concurrent.TimeUnit
@@ -31,6 +30,8 @@ class MainPresenter : TiPresenter<MainView>() {
 
     private var receiveSmsAllowed = false
     private var readSmsAllowed = false
+
+    private val defaultNumberOfAffectedItems = 0
 
     override fun onAttachView(view: MainView) {
         super.onAttachView(view)
@@ -75,16 +76,15 @@ class MainPresenter : TiPresenter<MainView>() {
         handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
             .doOnNext { view.startMapTripWithDestinationInfo(it) }
-            .flatMapCompletable { updateNavigatedStatus(view, it, true) }
+            .flatMapMaybe { updateNavigatedStatus(view, it, true) }
             .subscribe()
         )
 
         handler.manageViewDisposable(view.getOnDeleteApprovedClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .flatMapMaybe { deleteAllEntriesFromDataStore(view) }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { view.updateDestinationInfoList(ArrayList()) }
-            .observeOn(Schedulers.io())
-            .flatMapCompletable { deleteAllEntriesFromDataStore(view) }
             .subscribe()
         )
 
@@ -134,20 +134,20 @@ class MainPresenter : TiPresenter<MainView>() {
     private fun updateNavigatedStatus(
         view: MainView, destinationInfo: DestinationInfo,
         navigatedStatus: Boolean
-    ): Completable {
+    ): Maybe<Int> {
         destinationInfo.alreadyNavigated = navigatedStatus
         val dataSource = view.getDataSource()
         if (dataSource is DestinationDatabase) {
             return DestinationUpdater(LocalDestinationRepository(dataSource)).execute(destinationInfo)
         }
-        return Completable.complete()
+        return Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
     }
 
-    private fun deleteAllEntriesFromDataStore(view: MainView): Completable {
+    private fun deleteAllEntriesFromDataStore(view: MainView): Maybe<Int> {
         val dataSource = view.getDataSource()
         if (dataSource is DestinationDatabase) {
             return DestinationEraser(LocalDestinationRepository(dataSource)).execute(Any())
         }
-        return Completable.complete()
+        return Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
     }
 }

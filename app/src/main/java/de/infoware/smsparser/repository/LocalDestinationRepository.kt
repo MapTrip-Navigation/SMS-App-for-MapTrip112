@@ -4,17 +4,18 @@ import de.infoware.smsparser.DestinationInfo
 import de.infoware.smsparser.storage.DestinationDatabase
 import de.infoware.smsparser.storage.DestinationEntity
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) : DestinationRepository {
 
-    override fun deleteAll(): Completable {
+    override fun deleteAll(): Maybe<Int> {
         return destinationDatabase
             .destinationDao()
             .deleteAll()
     }
 
-    override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Completable {
+    override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Maybe<Int> {
         return destinationDatabase
             .destinationDao()
             .updateNavigatedStatus(destinationInfo.uidInDataSource, destinationInfo.alreadyNavigated)

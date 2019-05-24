@@ -27,12 +27,11 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         val message = getSmsInfoFromIntent(intent)
         SmsProcessorFactory.getSmsProcessor(message.smsSender)
             .execute(message.smsBody)
-            .doOnSuccess {
+            .flatMapCompletable {
                 DestinationSaver(LocalDestinationRepository(DestinationDatabase.getInstance(context)))
                     .execute(it)
-                    .subscribe()
             }
-            .subscribe { _ -> launchSmsApp(context) }
+            .subscribe { launchSmsApp(context) }
     }
 
     @Suppress("DEPRECATION")

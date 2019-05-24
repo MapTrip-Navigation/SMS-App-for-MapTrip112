@@ -2,6 +2,7 @@ package de.infoware.smsparser.storage
 
 import androidx.room.*
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 
@@ -19,9 +20,13 @@ interface DestinationDao {
     @Delete
     fun delete(destinationEntity: DestinationEntity): Completable
 
+    /**
+     * For the queries below we can not use Completable as a return type because of the room ideology.
+     * Int value in Maybe stands for the number of affected rows in the database.
+     */
     @Query("DELETE FROM destination")
-    fun deleteAll(): Completable
+    fun deleteAll(): Maybe<Int>
 
     @Query("UPDATE destination SET already_navigated = :alreadyNavigated WHERE uid = :uid")
-    fun updateNavigatedStatus(uid: Int, alreadyNavigated: Boolean): Completable
+    fun updateNavigatedStatus(uid: Int, alreadyNavigated: Boolean): Maybe<Int>
 }
