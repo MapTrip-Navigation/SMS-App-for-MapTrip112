@@ -6,7 +6,7 @@
         Bitte starten Sie es neu und erteilen Sie die Berechtigungen.
     </string>
     <string name="ok">OK</string>
-    <string name="maptrip_start_fail">Maptrip konnte nicht gestartet werden</string>
+    <string name="maptrip_start_fail">MapTrip konnte nicht gestartet werden</string>
     <string name="navigation_start_dialog_title">Neuer Einsatz</string>
     <string name="cancel">Abbrechen</string>
     <string name="start_navigation">Navigation</string>

@@ -2,18 +2,17 @@ package de.infoware.smsparser.ui
 
 import android.content.pm.PackageManager
 import de.infoware.smsparser.data.DestinationInfo
+import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationEraser
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.domain.DestinationUpdater
 import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.repository.LocalDestinationRepository
-import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.ui.util.clickDebounceInMillis
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 import java.util.concurrent.TimeUnit
@@ -50,12 +49,17 @@ class MainPresenter : TiPresenter<MainView>() {
         // If the latest destination is not yet navigated, show navigation dialog directly
         handler.manageViewDisposable(loadDestinationInfo(view)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { destinationInfoList ->
+            .doOnSuccess { destinationInfoList ->
                 view.updateDestinationInfoList(destinationInfoList)
+            }
+            .flatMapMaybe { destinationInfoList ->
                 if (destinationInfoList.isNotEmpty() && !destinationInfoList[0].alreadyNavigated) {
                     view.showNavigationDialog(destinationInfoList[0])
+                    return@flatMapMaybe updateNavigatedStatus(view, destinationInfoList[0], true)
                 }
-            })
+                return@flatMapMaybe Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
+            }
+            .subscribe())
 
         subscribeToUiEvents(view)
     }
@@ -79,18 +83,13 @@ class MainPresenter : TiPresenter<MainView>() {
         handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext { view.startMapTripWithDestinationInfo(it) }
-            .observeOn(Schedulers.io())
-            .flatMapMaybe { updateNavigatedStatus(view, it, true) }
-            .subscribe()
+            .subscribe { view.startMapTripWithDestinationInfo(it) }
         )
 
         handler.manageViewDisposable(view.getOnDeleteMenuClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                view.showDeleteListDialog()
-            }
+            .subscribe { view.showDeleteListDialog() }
         )
 
         handler.manageViewDisposable(view.getOnDeleteApprovedClickObservable()
