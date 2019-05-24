@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import de.infoware.smsparser.DestinationInfo
+import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,7 +16,10 @@ class DestinationInfoAdapter :
     RecyclerView.Adapter<DestinationInfoAdapter.DestinationInfoViewHolder>() {
 
     private val calendar = Calendar.getInstance()
+
+    // Pattern for time displaying
     private val pattern = "HH:mm dd/MM/yyyy "
+
     private val df = SimpleDateFormat(pattern, Locale.GERMANY)
 
     private var destinationInfoList: List<DestinationInfo> = ArrayList()
@@ -29,7 +32,6 @@ class DestinationInfoAdapter :
     }
 
 
-    // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -40,7 +42,6 @@ class DestinationInfoAdapter :
         return DestinationInfoViewHolder(view)
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(holder: DestinationInfoViewHolder, position: Int) {
         val currentDestinationInfo = destinationInfoList[position]
 
@@ -58,6 +59,7 @@ class DestinationInfoAdapter :
         notifyDataSetChanged()
     }
 
+    // Set lambda expression for the click event.
     fun setOnDestinationInfoClickListener(emitClickEvent: (DestinationInfo) -> Unit) {
         this.clickEvent = emitClickEvent
     }

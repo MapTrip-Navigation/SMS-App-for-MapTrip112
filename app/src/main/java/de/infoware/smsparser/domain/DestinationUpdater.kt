@@ -1,6 +1,6 @@
 package de.infoware.smsparser.domain
 
-import de.infoware.smsparser.DestinationInfo
+import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.repository.DestinationRepository
 import io.reactivex.Maybe
 import io.reactivex.schedulers.Schedulers

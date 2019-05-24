@@ -1,18 +1,19 @@
 package de.infoware.smsparser.ui
 
 import android.content.pm.PackageManager
-import de.infoware.smsparser.DestinationInfo
+import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.domain.DestinationEraser
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.domain.DestinationUpdater
 import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.repository.LocalDestinationRepository
-import de.infoware.smsparser.storage.DestinationDatabase
+import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.ui.util.clickDebounceInMillis
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 import java.util.concurrent.TimeUnit
@@ -46,6 +47,7 @@ class MainPresenter : TiPresenter<MainView>() {
             view.requestReadSmsPermission(readSmsRequestCode)
         }
 
+        // If the latest destination is not yet navigated, show navigation dialog directly
         handler.manageViewDisposable(loadDestinationInfo(view)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { destinationInfoList ->
@@ -63,6 +65,7 @@ class MainPresenter : TiPresenter<MainView>() {
             .subscribe { processPermissionResult(view, it) }
         )
 
+        // Handles clicks of the neutral button of the dialog with non-granted permission
         handler.manageViewDisposable(view.getPermissionAlertDialogNeutralClickObservable()
             .subscribe { view.exitApp() }
         )
@@ -75,16 +78,10 @@ class MainPresenter : TiPresenter<MainView>() {
 
         handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
-            .doOnNext { view.startMapTripWithDestinationInfo(it) }
-            .flatMapMaybe { updateNavigatedStatus(view, it, true) }
-            .subscribe()
-        )
-
-        handler.manageViewDisposable(view.getOnDeleteApprovedClickObservable()
-            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
-            .flatMapMaybe { deleteAllEntriesFromDataStore(view) }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext { view.updateDestinationInfoList(ArrayList()) }
+            .doOnNext { view.startMapTripWithDestinationInfo(it) }
+            .observeOn(Schedulers.io())
+            .flatMapMaybe { updateNavigatedStatus(view, it, true) }
             .subscribe()
         )
 
@@ -96,6 +93,13 @@ class MainPresenter : TiPresenter<MainView>() {
             }
         )
 
+        handler.manageViewDisposable(view.getOnDeleteApprovedClickObservable()
+            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+            .flatMapMaybe { deleteAllEntriesFromDataStore(view) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { view.updateDestinationInfoList(ArrayList()) }
+            .subscribe()
+        )
     }
 
     private fun processPermissionResult(view: MainView, permissionResult: PermissionResult) {

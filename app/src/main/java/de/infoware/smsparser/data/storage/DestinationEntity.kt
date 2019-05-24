@@ -1,4 +1,4 @@
-package de.infoware.smsparser.storage
+package de.infoware.smsparser.data.storage
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
