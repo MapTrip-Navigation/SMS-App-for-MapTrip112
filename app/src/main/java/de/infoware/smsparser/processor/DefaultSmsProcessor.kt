@@ -6,6 +6,7 @@ import java.util.*
 
 class DefaultSmsProcessor : SmsProcessor {
 
+    private val exceptionMessage = "Sms had incorrect structure"
     private val calendar = Calendar.getInstance()
 
     override fun execute(param: String?): Single<DestinationInfo> {
@@ -22,6 +23,7 @@ class DefaultSmsProcessor : SmsProcessor {
                     lon = coordinate.last().toDouble()
                 } catch (e: NumberFormatException) {
                     e.printStackTrace()
+                    return Single.error { IllegalArgumentException(exceptionMessage) }
                 }
             }
             reason = messageParts.last()
@@ -29,7 +31,7 @@ class DefaultSmsProcessor : SmsProcessor {
             return Single.just(destinationInfo)
 
         }
-        return Single.error { IllegalArgumentException("Sms had incorrect structure") }
+        return Single.error { IllegalArgumentException(exceptionMessage) }
     }
 
 }
