@@ -1,5 +1,6 @@
-package de.infoware.smsparser
+package de.infoware.smsparser.data
 
+// Data class which is transferred across layer boundaries.
 data class DestinationInfo(
     val lat: Double,
     val lon: Double,

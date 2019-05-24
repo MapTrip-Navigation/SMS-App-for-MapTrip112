@@ -1,38 +1,16 @@
 package de.infoware.smsparser.repository
 
-import de.infoware.smsparser.DestinationInfo
-import de.infoware.smsparser.storage.DestinationDatabase
-import de.infoware.smsparser.storage.DestinationEntity
+import de.infoware.smsparser.data.DestinationInfo
+import de.infoware.smsparser.data.storage.DestinationDatabase
+import de.infoware.smsparser.data.storage.DestinationEntity
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
+/**
+ * Actual implementation of repository for the local DataBase
+ */
 class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) : DestinationRepository {
-
-    override fun deleteAll(): Maybe<Int> {
-        return destinationDatabase
-            .destinationDao()
-            .deleteAll()
-    }
-
-    override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Maybe<Int> {
-        return destinationDatabase
-            .destinationDao()
-            .updateNavigatedStatus(destinationInfo.uidInDataSource, destinationInfo.alreadyNavigated)
-    }
-
-    override fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable {
-        return destinationDatabase
-            .destinationDao()
-            .insert(
-                DestinationEntity(
-                    destinationInfo.lat,
-                    destinationInfo.lon,
-                    destinationInfo.reason,
-                    destinationInfo.addedTimestamp
-                )
-            )
-    }
 
     override fun getAllDestinationInfo(): Single<List<DestinationInfo>> {
         return destinationDatabase
@@ -56,5 +34,30 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
                     emitter.onSuccess(result)
                 }
             }
+    }
+
+    override fun insertDestinationInfo(destinationInfo: DestinationInfo): Completable {
+        return destinationDatabase
+            .destinationDao()
+            .insert(
+                DestinationEntity(
+                    destinationInfo.lat,
+                    destinationInfo.lon,
+                    destinationInfo.reason,
+                    destinationInfo.addedTimestamp
+                )
+            )
+    }
+
+    override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Maybe<Int> {
+        return destinationDatabase
+            .destinationDao()
+            .updateNavigatedStatus(destinationInfo.uidInDataSource, destinationInfo.alreadyNavigated)
+    }
+
+    override fun deleteAll(): Maybe<Int> {
+        return destinationDatabase
+            .destinationDao()
+            .deleteAll()
     }
 }

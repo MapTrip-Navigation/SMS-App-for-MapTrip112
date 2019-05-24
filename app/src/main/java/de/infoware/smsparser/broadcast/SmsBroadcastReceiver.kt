@@ -7,13 +7,14 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsMessage
-import de.infoware.smsparser.SmsInfo
 import de.infoware.smsparser.domain.DestinationSaver
 import de.infoware.smsparser.processor.SmsProcessorFactory
 import de.infoware.smsparser.repository.LocalDestinationRepository
-import de.infoware.smsparser.storage.DestinationDatabase
+import de.infoware.smsparser.data.storage.DestinationDatabase
 
-
+/**
+ * Broadcast receiver for parsing sms.
+ */
 class SmsBroadcastReceiver : BroadcastReceiver() {
     companion object {
         const val SMS_PARSER_APP_PACKAGE = "de.infoware.smsparser"
