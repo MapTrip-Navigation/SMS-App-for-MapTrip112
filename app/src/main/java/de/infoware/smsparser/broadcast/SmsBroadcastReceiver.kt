@@ -7,10 +7,10 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsMessage
+import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationSaver
 import de.infoware.smsparser.processor.SmsProcessorFactory
 import de.infoware.smsparser.repository.LocalDestinationRepository
-import de.infoware.smsparser.data.storage.DestinationDatabase
 
 /**
  * Broadcast receiver for parsing sms.
@@ -32,7 +32,10 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                 DestinationSaver(LocalDestinationRepository(DestinationDatabase.getInstance(context)))
                     .execute(it)
             }
-            .subscribe { launchSmsApp(context) }
+            .subscribe(
+                { launchSmsApp(context) },
+                { e -> e.printStackTrace() }
+            )
     }
 
     @Suppress("DEPRECATION")

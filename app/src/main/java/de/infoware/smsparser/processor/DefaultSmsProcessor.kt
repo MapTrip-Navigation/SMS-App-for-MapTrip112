@@ -4,13 +4,11 @@ import de.infoware.smsparser.data.DestinationInfo
 import io.reactivex.Single
 import java.util.*
 
-class DefaultSmsProcessor() : SmsProcessor {
+class DefaultSmsProcessor : SmsProcessor {
 
     private val calendar = Calendar.getInstance()
 
     override fun execute(param: String?): Single<DestinationInfo> {
-        var destinationInfo = DestinationInfo(0.0, 0.0, "", 0L, false)
-
         var lat = 0.0
         var lon = 0.0
         val reason: String
@@ -27,10 +25,11 @@ class DefaultSmsProcessor() : SmsProcessor {
                 }
             }
             reason = messageParts.last()
-            destinationInfo = DestinationInfo(lat, lon, reason, calendar.timeInMillis)
+            val destinationInfo = DestinationInfo(lat, lon, reason, calendar.timeInMillis)
+            return Single.just(destinationInfo)
 
         }
-        return Single.just(destinationInfo)
+        return Single.error { IllegalArgumentException("Sms had incorrect structure") }
     }
 
 }
