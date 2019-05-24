@@ -1,5 +1,9 @@
 package de.infoware.smsparser.processor
 
+/**
+ * Abstract factory for choosing the right SmsProcessor.
+ * Corresponding processor is defined according to the phone number, which was used for sending SMS.
+ */
 abstract class SmsProcessorFactory {
 
     companion object {
