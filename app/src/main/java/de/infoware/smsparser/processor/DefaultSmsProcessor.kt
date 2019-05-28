@@ -10,8 +10,8 @@ class DefaultSmsProcessor : SmsProcessor {
     private val calendar = Calendar.getInstance()
 
     override fun execute(param: String?): Single<DestinationInfo> {
-        var lat = 0.0
-        var lon = 0.0
+        val lat: Double
+        val lon: Double
         val reason: String
 
         val messageParts = param?.split(";")
@@ -25,11 +25,10 @@ class DefaultSmsProcessor : SmsProcessor {
                     e.printStackTrace()
                     return Single.error { IllegalArgumentException(exceptionMessage) }
                 }
+                reason = messageParts.last()
+                val destinationInfo = DestinationInfo(lat, lon, reason, calendar.timeInMillis)
+                return Single.just(destinationInfo)
             }
-            reason = messageParts.last()
-            val destinationInfo = DestinationInfo(lat, lon, reason, calendar.timeInMillis)
-            return Single.just(destinationInfo)
-
         }
         return Single.error { IllegalArgumentException(exceptionMessage) }
     }
