@@ -8,33 +8,20 @@ variables:
 
 
 stages:
-  - build
-  - quality_assurance
+  - build_and_test
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x gradlew
 
-
-build:
-  stage: build
+build_and_test:
+  stage: build_and_test
   script:
     - ./gradlew clean assemble
+    - ./gradlew test
   tags:
     - android
   artifacts:
     paths:
       - app/build
     expire_in: 1 day
-
-
-test:
-  stage: quality_assurance
-  tags:
-    - android
-  script:
-    - ./gradlew test
-  artifacts:
-    when: always
-    expire_in: 1 day
-
