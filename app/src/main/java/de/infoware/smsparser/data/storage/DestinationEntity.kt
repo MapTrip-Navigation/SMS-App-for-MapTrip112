@@ -10,7 +10,7 @@ data class DestinationEntity(
     @ColumnInfo(name = "lon") val lon: Double,
     @ColumnInfo(name = "reason") val reason: String,
     @ColumnInfo(name = "added_timestamp") var addedTimestamp: Long,
-    @ColumnInfo(name = "already_navigated") var alreadyNavigated: Boolean = false
+    @ColumnInfo(name = "already_shown") var alreadyShown: Boolean = false
 ) {
     @PrimaryKey(autoGenerate = true)
     var uid: Int = 0

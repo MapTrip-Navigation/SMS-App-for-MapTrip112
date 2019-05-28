@@ -27,6 +27,6 @@ interface DestinationDao {
     @Query("DELETE FROM destination")
     fun deleteAll(): Maybe<Int>
 
-    @Query("UPDATE destination SET already_navigated = :alreadyNavigated WHERE uid = :uid")
-    fun updateNavigatedStatus(uid: Int, alreadyNavigated: Boolean): Maybe<Int>
+    @Query("UPDATE destination SET already_shown = :alreadyShown WHERE uid = :uid")
+    fun updateNavigatedStatus(uid: Int, alreadyShown: Boolean): Maybe<Int>
 }
