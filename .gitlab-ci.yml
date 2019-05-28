@@ -1,0 +1,40 @@
+image: infoware/gitlab-ci-android
+
+variables:
+  DOCKER_DRIVER: overlay2
+  WORKSPACE: ${CI_PROJECT_DIR}
+  PIPELINE_ID: ${CI_PIPELINE_ID}
+
+
+
+stages:
+  - build
+  - quality_assurance
+
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x gradlew
+
+
+build:
+  stage: build
+  script:
+    - ./gradlew clean assemble
+  tags:
+    - android
+  artifacts:
+    paths:
+      - app/build
+    expire_in: 1 day
+
+
+test:
+  stage: quality_assurance
+  tags:
+    - android
+  script:
+    - ./gradlew test
+  artifacts:
+    when: always
+    expire_in: 1 day
+
