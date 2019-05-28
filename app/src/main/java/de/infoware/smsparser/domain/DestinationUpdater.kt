@@ -6,7 +6,7 @@ import io.reactivex.Maybe
 import io.reactivex.schedulers.Schedulers
 
 /**
- * UseCase for updating information regarding alreadyNavigated status.
+ * UseCase for updating information regarding alreadyShown status.
  */
 class DestinationUpdater(private val repository: DestinationRepository) : UseCase<DestinationInfo, Maybe<Int>> {
     override fun execute(param: DestinationInfo): Maybe<Int> {

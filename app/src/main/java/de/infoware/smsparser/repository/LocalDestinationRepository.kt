@@ -26,7 +26,7 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
                                 entity.lon,
                                 entity.reason,
                                 entity.addedTimestamp,
-                                entity.alreadyNavigated,
+                                entity.alreadyShown,
                                 entity.uid
                             )
                         )
