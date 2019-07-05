@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmsParser</string>
+    <string name="app_name">SMS MapTrip</string>
     <string name="attention">Achtung!</string>
     <string name="permission_dialog_message">Für ein ordnungsgemäßes Funktionieren der App sind die erforderlichen
         Berechtigungen erforderlich. Jetzt wird die App geschlossen.
