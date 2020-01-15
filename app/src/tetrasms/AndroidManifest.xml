@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.infoware.smsparser">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.garmin.android.comm.permission.SERIAL_PORT" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <service
+            android:name=".service.TetraConnectionService"
+            android:exported="false" />
+
+        <!--  We are not allowed to use @string resources here,
+        so we have to duplicate intent-filter as plain string  -->
+        <receiver android:name=".broadcast.BroadcastTetraServiceStarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".broadcast.BroadcastMessageReceiver"
+            android:permission="com.garmin.android.comm.permission.SERIAL_PORT">
+            <intent-filter>
+                <action android:name="de.infoware.smsapp.NEW_MESSAGE" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".ui.TetraMainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

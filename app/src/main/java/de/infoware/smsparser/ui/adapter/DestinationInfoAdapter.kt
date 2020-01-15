@@ -35,7 +35,7 @@ class DestinationInfoAdapter :
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): DestinationInfoAdapter.DestinationInfoViewHolder {
+    ): DestinationInfoViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
             R.layout.destination_info_item_view, parent, false
         )

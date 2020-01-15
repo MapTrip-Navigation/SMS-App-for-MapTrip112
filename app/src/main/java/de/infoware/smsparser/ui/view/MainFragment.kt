@@ -1,15 +1,12 @@
-package de.infoware.smsparser.ui
+package de.infoware.smsparser.ui.view
 
-import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxrelay2.PublishRelay
@@ -19,12 +16,14 @@ import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.data.DataSource
 import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.ui.adapter.DestinationInfoAdapter
+import de.infoware.smsparser.ui.presenter.MainPresenter
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.fragment_main.*
 import net.grandcentrix.thirtyinch.TiFragment
 
 
-class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
+abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
+    MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,34 +53,9 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         activity?.finish()
     }
 
-    override fun requestReceiveSmsPermission(requestCode: Int) {
-        requestPermission(Manifest.permission.RECEIVE_SMS, requestCode)
-    }
-
-    override fun requestReadSmsPermission(requestCode: Int) {
-        requestPermission(Manifest.permission.READ_SMS, requestCode)
-    }
-
-    private fun requestPermission(permission: String, requestCode: Int) {
+    fun requestPermission(permission: String, requestCode: Int) {
         requestPermissions(arrayOf(permission), requestCode)
     }
-
-    override fun checkReceiveSmsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            activity!! as MainActivity, Manifest.permission.RECEIVE_SMS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun checkReadSmsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            activity!! as MainActivity, Manifest.permission.READ_SMS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun providePresenter(): MainPresenter {
-        return MainPresenter()
-    }
-
 
     private val permissionResultRelay = PublishRelay.create<PermissionResult>()
     override fun getPermissionResultObservable(): Observable<PermissionResult> {
@@ -146,9 +120,9 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         return onDeleteMenuClickPublishRelay
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.fragment_main, menu)
+        inflater.inflate(R.menu.fragment_main, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -183,14 +157,14 @@ class MainFragment : TiFragment<MainPresenter, MainView>(), MainView {
         return onDeleteApprovedClickPublishRelay
     }
 
-    // Handles clicks on the start navigation button inside the dialog
+    // Handles clicks on the startSession navigation button inside the dialog
     private var onStartNavigationClickPublishRelay = PublishRelay.create<DestinationInfo>()
 
     override fun getOnStartNavigationClickObservable(): Observable<DestinationInfo> {
         return onStartNavigationClickPublishRelay
     }
 
-    // Shows start navigation dialog.
+    // Shows startSession navigation dialog.
     override fun showNavigationDialog(destinationInfo: DestinationInfo) {
         val builder = AlertDialog.Builder(activity!!)
 
