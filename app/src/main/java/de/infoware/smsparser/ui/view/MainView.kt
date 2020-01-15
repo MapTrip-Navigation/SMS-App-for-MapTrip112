@@ -1,4 +1,4 @@
-package de.infoware.smsparser.ui
+package de.infoware.smsparser.ui.view
 
 import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.permission.PermissionResult
@@ -7,14 +7,6 @@ import io.reactivex.Observable
 import net.grandcentrix.thirtyinch.TiView
 
 interface MainView : TiView {
-
-    fun checkReceiveSmsPermission(): Boolean
-
-    fun requestReceiveSmsPermission(requestCode: Int)
-
-    fun checkReadSmsPermission(): Boolean
-
-    fun requestReadSmsPermission(requestCode: Int)
 
     fun getPermissionResultObservable(): Observable<PermissionResult>
 

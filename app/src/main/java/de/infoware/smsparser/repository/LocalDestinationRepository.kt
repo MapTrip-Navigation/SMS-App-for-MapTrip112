@@ -10,29 +10,28 @@ import io.reactivex.Single
 /**
  * Actual implementation of repository for the local DataBase
  */
-class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) : DestinationRepository {
+class LocalDestinationRepository(private val destinationDatabase: DestinationDatabase) :
+    DestinationRepository {
 
     override fun getAllDestinationInfo(): Single<List<DestinationInfo>> {
         return destinationDatabase
             .destinationDao()
             .getAll()
-            .flatMap {
-                Single.create<List<DestinationInfo>> { emitter ->
-                    val result = ArrayList<DestinationInfo>()
-                    it.forEach { entity ->
-                        result.add(
-                            DestinationInfo(
-                                entity.lat,
-                                entity.lon,
-                                entity.reason,
-                                entity.addedTimestamp,
-                                entity.alreadyShown,
-                                entity.uid
-                            )
+            .map {
+                val result = ArrayList<DestinationInfo>()
+                it.forEach { entity ->
+                    result.add(
+                        DestinationInfo(
+                            entity.lat,
+                            entity.lon,
+                            entity.reason,
+                            entity.addedTimestamp,
+                            entity.alreadyShown,
+                            entity.uid
                         )
-                    }
-                    emitter.onSuccess(result)
+                    )
                 }
+                return@map result
             }
     }
 
@@ -52,7 +51,10 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
     override fun updateNavigatedStatus(destinationInfo: DestinationInfo): Maybe<Int> {
         return destinationDatabase
             .destinationDao()
-            .updateNavigatedStatus(destinationInfo.uidInDataSource, destinationInfo.alreadyNavigated)
+            .updateNavigatedStatus(
+                destinationInfo.uidInDataSource,
+                destinationInfo.alreadyNavigated
+            )
     }
 
     override fun deleteAll(): Maybe<Int> {

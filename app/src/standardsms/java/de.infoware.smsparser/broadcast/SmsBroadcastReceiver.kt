@@ -9,6 +9,7 @@ import android.provider.Telephony
 import android.telephony.SmsMessage
 import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationSaver
+import de.infoware.smsparser.message.SmsInfo
 import de.infoware.smsparser.processor.SmsProcessorFactory
 import de.infoware.smsparser.repository.LocalDestinationRepository
 
@@ -17,9 +18,8 @@ import de.infoware.smsparser.repository.LocalDestinationRepository
  */
 class SmsBroadcastReceiver : BroadcastReceiver() {
     companion object {
-        const val SMS_PARSER_APP_PACKAGE = "de.infoware.smsparser"
+        const val SMS_PARSER_APP_PACKAGE = "de.infoware.smsparser.standardsms"
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
-//        const val DUMMY = "51.2123544, 6.12548543;Zimmerbrand Musterstrasse 26 3:OG"
     }
 
 

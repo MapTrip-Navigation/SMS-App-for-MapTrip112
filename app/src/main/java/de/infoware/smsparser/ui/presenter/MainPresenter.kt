@@ -1,4 +1,4 @@
-package de.infoware.smsparser.ui
+package de.infoware.smsparser.ui.presenter
 
 import android.content.pm.PackageManager
 import de.infoware.smsparser.data.DestinationInfo
@@ -6,8 +6,8 @@ import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationEraser
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.domain.DestinationUpdater
-import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.repository.LocalDestinationRepository
+import de.infoware.smsparser.ui.view.MainView
 import de.infoware.smsparser.ui.util.clickDebounceInMillis
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -17,19 +17,14 @@ import net.grandcentrix.thirtyinch.TiPresenter
 import net.grandcentrix.thirtyinch.rx2.RxTiPresenterDisposableHandler
 import java.util.concurrent.TimeUnit
 
-class MainPresenter : TiPresenter<MainView>() {
+abstract class MainPresenter : TiPresenter<MainView>(),
+    MainPresenterInterface {
 
     /**
      * Helper class, which disposes [io.reactivex.disposables.Disposable] from the view
      * or other [Observable]s.
      */
-    private val handler = RxTiPresenterDisposableHandler(this)
-
-    private val receiveSmsRequestCode = 100
-    private val readSmsRequestCode = 101
-
-    private var receiveSmsAllowed = false
-    private var readSmsAllowed = false
+    val handler = RxTiPresenterDisposableHandler(this)
 
     private val defaultNumberOfAffectedItems = 0
 
@@ -38,13 +33,7 @@ class MainPresenter : TiPresenter<MainView>() {
 
         checkPermissions(view)
 
-        if (!receiveSmsAllowed) {
-            view.requestReceiveSmsPermission(receiveSmsRequestCode)
-        }
-
-        if (!readSmsAllowed) {
-            view.requestReadSmsPermission(readSmsRequestCode)
-        }
+        requestPermissionsIfRequired(view)
 
         // If the latest destination is not yet navigated, show navigation dialog directly
         handler.manageViewDisposable(loadDestinationInfo(view)
@@ -55,9 +44,13 @@ class MainPresenter : TiPresenter<MainView>() {
             .flatMapMaybe { destinationInfoList ->
                 if (destinationInfoList.isNotEmpty() && !destinationInfoList[0].alreadyNavigated) {
                     view.showNavigationDialog(destinationInfoList[0])
-                    return@flatMapMaybe updateNavigatedStatus(view, destinationInfoList[0], true)
+                    return@flatMapMaybe updateNavigatedStatus(
+                        view,
+                        destinationInfoList[0],
+                        true
+                    )
                 }
-                return@flatMapMaybe Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
+                return@flatMapMaybe Maybe.just(defaultNumberOfAffectedItems)
             }
             .subscribe())
 
@@ -101,28 +94,7 @@ class MainPresenter : TiPresenter<MainView>() {
         )
     }
 
-    private fun processPermissionResult(view: MainView, permissionResult: PermissionResult) {
-        val requestCode = permissionResult.requestCode
-        val grantResults = permissionResult.grantResults
-
-        // Check if any permission is granted in general and when granted - check which one.
-        if (isPermissionGranted(grantResults)) {
-            when (requestCode) {
-                receiveSmsRequestCode -> receiveSmsAllowed = true
-
-                readSmsRequestCode -> readSmsAllowed = true
-            }
-        } else {
-            view.showPermissionAlertDialog()
-        }
-    }
-
-    private fun checkPermissions(view: MainView) {
-        receiveSmsAllowed = view.checkReceiveSmsPermission()
-        readSmsAllowed = view.checkReadSmsPermission()
-    }
-
-    private fun isPermissionGranted(grantResults: IntArray): Boolean {
+    open fun isPermissionGranted(grantResults: IntArray): Boolean {
         return grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
 
@@ -131,7 +103,7 @@ class MainPresenter : TiPresenter<MainView>() {
         if (dataSource is DestinationDatabase) {
             return DestinationLoader(LocalDestinationRepository(dataSource)).execute(Any())
         }
-        return Single.fromCallable { ArrayList<DestinationInfo>() }
+        return Single.just(ArrayList())
     }
 
     private fun updateNavigatedStatus(
@@ -141,9 +113,11 @@ class MainPresenter : TiPresenter<MainView>() {
         destinationInfo.alreadyNavigated = navigatedStatus
         val dataSource = view.getDataSource()
         if (dataSource is DestinationDatabase) {
-            return DestinationUpdater(LocalDestinationRepository(dataSource)).execute(destinationInfo)
+            return DestinationUpdater(LocalDestinationRepository(dataSource)).execute(
+                destinationInfo
+            )
         }
-        return Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
+        return Maybe.just(defaultNumberOfAffectedItems)
     }
 
     private fun deleteAllEntriesFromDataStore(view: MainView): Maybe<Int> {
@@ -151,6 +125,6 @@ class MainPresenter : TiPresenter<MainView>() {
         if (dataSource is DestinationDatabase) {
             return DestinationEraser(LocalDestinationRepository(dataSource)).execute(Any())
         }
-        return Maybe.fromCallable { return@fromCallable defaultNumberOfAffectedItems }
+        return Maybe.just(defaultNumberOfAffectedItems)
     }
 }

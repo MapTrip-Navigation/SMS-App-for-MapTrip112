@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TETRA MapTrip</string>
+
+    <string name="tetra_sms_app_package">de.infoware.smsparser.tetrasms</string>
+
+    <string name="new_message_intent_action">de.infoware.smsapp.NEW_MESSAGE</string>
+    <string name="session_start_failure_intent_action">de.infoware.smsapp.SESSION_START_FAILURE</string>
+    <string name="boot_competed_intent_action">android.intent.action.BOOT_COMPLETED</string>
+
+    <string name="port_failure_message_key">PORT_FAILURE</string>
+    <string name="message_body_key">MESSAGE_BODY</string>
+    <string name="tetra_utility_message_prefix">+CTSDSR</string>
+
+
+    <string name="port_failure_dialog_message">Leider gab es ein Problem beim Öffnen einer seriellen Verbindung: </string>
+</resources>
