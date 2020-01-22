@@ -11,6 +11,10 @@ import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationSaver
 import de.infoware.smsparser.message.SmsInfo
 import de.infoware.smsparser.processor.SmsProcessorFactory
+import de.infoware.smsparser.processor.util.TETRA_K01
+import de.infoware.smsparser.processor.util.TETRA_K01_PREFIX
+import de.infoware.smsparser.processor.util.TETRA_TVPN
+import de.infoware.smsparser.processor.util.TETRA_TVPN_PREFIX
 import de.infoware.smsparser.repository.LocalDestinationRepository
 
 /**
@@ -57,10 +61,16 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                 }
                 for (message in messages) {
                     smsBody = smsBody.plus(message?.displayMessageBody)
-                    smsSender = smsSender.plus(message?.displayOriginatingAddress)
+                    // Possible message formats
+                    if (smsBody.startsWith(TETRA_K01_PREFIX)) {
+                        smsSender = TETRA_K01
+                    } else if (smsBody.startsWith(TETRA_TVPN_PREFIX)) {
+                        smsSender = TETRA_TVPN
+                    } else {
+                        smsSender = smsSender.plus(message?.displayOriginatingAddress)
+                    }
                     break
                 }
-
             }
         }
         return SmsInfo(smsBody, smsSender)

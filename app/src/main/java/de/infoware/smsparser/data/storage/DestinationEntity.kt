@@ -10,6 +10,7 @@ data class DestinationEntity(
     @ColumnInfo(name = "lon") val lon: Double,
     @ColumnInfo(name = "reason") val reason: String,
     @ColumnInfo(name = "added_timestamp") var addedTimestamp: Long,
+    @ColumnInfo(name = "blue_light_navigation") var blueLightNavigation: Boolean = false,
     @ColumnInfo(name = "already_shown") var alreadyShown: Boolean = false
 ) {
     @PrimaryKey(autoGenerate = true)

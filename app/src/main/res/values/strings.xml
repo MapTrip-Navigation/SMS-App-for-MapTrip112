@@ -1,4 +1,5 @@
 <resources>
+    <string name="maptrip_package_name">de.infoware.maptrip.navi.license</string>
     <string name="app_name">SMS MapTrip</string>
     <string name="attention">Achtung!</string>
     <string name="permission_dialog_message">Für ein ordnungsgemäßes Funktionieren der App sind die erforderlichen

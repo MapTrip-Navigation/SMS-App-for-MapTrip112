@@ -26,6 +26,7 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
                             entity.lon,
                             entity.reason,
                             entity.addedTimestamp,
+                            entity.blueLightNavigation,
                             entity.alreadyShown,
                             entity.uid
                         )
@@ -43,7 +44,8 @@ class LocalDestinationRepository(private val destinationDatabase: DestinationDat
                     destinationInfo.lat,
                     destinationInfo.lon,
                     destinationInfo.reason,
-                    destinationInfo.addedTimestamp
+                    destinationInfo.addedTimestamp,
+                    destinationInfo.blueLightRouting
                 )
             )
     }
