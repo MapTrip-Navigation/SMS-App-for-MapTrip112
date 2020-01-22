@@ -6,6 +6,7 @@ data class DestinationInfo(
     val lon: Double,
     val reason: String,
     val addedTimestamp: Long,
+    var blueLightRouting: Boolean = false,
     var alreadyNavigated: Boolean = false,
     var uidInDataSource: Int = 0
 )

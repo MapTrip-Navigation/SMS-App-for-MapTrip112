@@ -1,8 +1,6 @@
 package de.infoware.smsparser.ui.view
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -10,11 +8,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxrelay2.PublishRelay
-import de.infoware.smsparser.data.DestinationInfo
+import de.infoware.android.mti.Api
+import de.infoware.android.mti.Navigation
 import de.infoware.smsparser.R
-import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.data.DataSource
+import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.data.storage.DestinationDatabase
+import de.infoware.smsparser.permission.PermissionResult
 import de.infoware.smsparser.ui.adapter.DestinationInfoAdapter
 import de.infoware.smsparser.ui.presenter.MainPresenter
 import io.reactivex.Observable
@@ -62,13 +62,21 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
         return permissionResultRelay
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionResultRelay.accept(PermissionResult(requestCode, grantResults))
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         // Create the view
         return inflater.inflate(R.layout.fragment_main, container, false)
@@ -90,7 +98,7 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
 
     private lateinit var adapter: DestinationInfoAdapter
     private fun initializeAdapter() {
-        adapter = DestinationInfoAdapter()
+        adapter = DestinationInfoAdapter(context!!)
         adapter.setOnDestinationInfoClickListener(onDestinationInfoClickPublishRelay::accept)
     }
 
@@ -182,15 +190,18 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
 
     // Starts maptrip with navigation to the provided destination.
     override fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo) {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(
-                "maptrip://navigate?latitude=${destinationInfo.lat}" +
-                        "&longitude=${destinationInfo.lon}"
-            )
+        val intent = activity?.packageManager?.getLaunchIntentForPackage(
+            getString(R.string.maptrip_package_name)
         )
         try {
-            context?.startActivity(intent)
+            startActivity(intent)
+            Api.init()
+            Navigation.stopNavigation()
+            Navigation.appendDestinationCoordinate(destinationInfo.lat, destinationInfo.lon)
+            Navigation.startNavigation()
+            Api.sendText(destinationInfo.reason)
+            Navigation.setEmergencyRoutingEnabled(destinationInfo.blueLightRouting)
+            Api.showServer()
         } catch (exc: ActivityNotFoundException) {
             Toast.makeText(context, R.string.maptrip_start_fail, Toast.LENGTH_LONG).show()
         }

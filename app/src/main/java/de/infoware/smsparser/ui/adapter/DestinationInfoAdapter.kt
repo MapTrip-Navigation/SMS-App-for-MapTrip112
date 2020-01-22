@@ -1,18 +1,20 @@
 package de.infoware.smsparser.ui.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.R
+import de.infoware.smsparser.data.DestinationInfo
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 
-class DestinationInfoAdapter :
+class DestinationInfoAdapter(val context: Context) :
     RecyclerView.Adapter<DestinationInfoAdapter.DestinationInfoViewHolder>() {
 
     private val calendar = Calendar.getInstance()
@@ -46,7 +48,9 @@ class DestinationInfoAdapter :
         val currentDestinationInfo = destinationInfoList[position]
 
         holder.destinationReason.text = currentDestinationInfo.reason
-
+        if (currentDestinationInfo.blueLightRouting) {
+            holder.destinationReason.setTextColor(ContextCompat.getColor(context, R.color.blue))
+        }
         calendar.timeInMillis = currentDestinationInfo.addedTimestamp
         holder.destinationAddedTime.text = df.format(calendar.time)
         holder.itemView.setOnClickListener {

@@ -1,5 +1,6 @@
 package de.infoware.smsparser.service
 
+import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -23,7 +24,7 @@ class TetraConnectionService : Service(), TetraSessionListener {
         super.onStartCommand(intent, flags, startId)
         chatClient = TetraRawPortClient()
         chatClient.startSession(applicationContext, this)
-
+        startForeground(1, Notification())
         return START_STICKY
     }
 
