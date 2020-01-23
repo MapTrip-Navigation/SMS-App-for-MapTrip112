@@ -7,8 +7,8 @@ import de.infoware.smsparser.domain.DestinationEraser
 import de.infoware.smsparser.domain.DestinationLoader
 import de.infoware.smsparser.domain.DestinationUpdater
 import de.infoware.smsparser.repository.LocalDestinationRepository
-import de.infoware.smsparser.ui.view.MainView
 import de.infoware.smsparser.ui.util.clickDebounceInMillis
+import de.infoware.smsparser.ui.view.MainView
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -73,11 +73,15 @@ abstract class MainPresenter : TiPresenter<MainView>(),
             .subscribe { view.showNavigationDialog(it) }
         )
 
-        handler.manageViewDisposable(view.getOnStartNavigationClickObservable()
-            .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { view.startMapTripWithDestinationInfo(it) }
+        handler.manageViewDisposable(
+            view.getOnStartNavigationClickObservable()
+                .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { view.startMapTripWithDestinationInfo(it) },
+                    { view.showToastMapTripNotFound() })
         )
+
 
         handler.manageViewDisposable(view.getOnDeleteMenuClickObservable()
             .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)

@@ -1,6 +1,5 @@
 package de.infoware.smsparser.ui.view
 
-import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -193,18 +192,18 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
         val intent = activity?.packageManager?.getLaunchIntentForPackage(
             getString(R.string.maptrip_package_name)
         )
-        try {
-            startActivity(intent)
-            Api.init()
-            Navigation.stopNavigation()
-            Navigation.appendDestinationCoordinate(destinationInfo.lat, destinationInfo.lon)
-            Navigation.startNavigation()
-            Api.sendText(destinationInfo.reason)
-            Navigation.setEmergencyRoutingEnabled(destinationInfo.blueLightRouting)
-            Api.showServer()
-        } catch (exc: ActivityNotFoundException) {
-            Toast.makeText(context, R.string.maptrip_start_fail, Toast.LENGTH_LONG).show()
-        }
+        startActivity(intent)
+        Api.init()
+        Navigation.stopNavigation()
+        Navigation.appendDestinationCoordinate(destinationInfo.lat, destinationInfo.lon)
+        Navigation.startNavigation()
+        Api.sendText(destinationInfo.reason)
+        Navigation.setEmergencyRoutingEnabled(destinationInfo.blueLightRouting)
+        Api.showServer()
+    }
+
+    override fun showToastMapTripNotFound() {
+        Toast.makeText(context, R.string.maptrip_start_fail, Toast.LENGTH_LONG).show()
     }
 
     override fun getDataSource(): DataSource {

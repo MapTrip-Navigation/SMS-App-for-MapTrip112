@@ -28,6 +28,8 @@ interface MainView : TiView {
 
     fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo)
 
+    fun showToastMapTripNotFound ()
+
     fun getOnDeleteMenuClickObservable(): Observable<Any>
 
     fun getOnDeleteApprovedClickObservable(): Observable<Any>
