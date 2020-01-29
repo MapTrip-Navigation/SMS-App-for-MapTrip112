@@ -1,4 +1,6 @@
-# SMS/Tetra App For MapTrip112
+# Project Description
+
+## 1.1 SMS/Tetra App For MapTrip112
 
 SMS and TETRA MapTrip112 are two Android Applications, which are based on a common code-base. That means, that any of these apps can process any of the messages, which follows the format conventions, that will be discussed later. 
 The difference between these two apps is related to the medium, which is used for listening to the new incoming messages.
