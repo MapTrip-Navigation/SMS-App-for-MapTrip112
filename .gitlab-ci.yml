@@ -1,17 +1,16 @@
-image: infoware/gitlab-ci-android
+image: infoware/gitlab-ci-android-r18b
 
 variables:
   DOCKER_DRIVER: overlay2
   WORKSPACE: ${CI_PROJECT_DIR}
   PIPELINE_ID: ${CI_PIPELINE_ID}
-
+  GRADLE_USER_HOME: /opt/gradle/gradle-5.4.1
 
 
 stages:
   - build_and_test
 
 before_script:
-  - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x gradlew
 
 build_and_test:
