@@ -2,13 +2,18 @@ package de.infoware.smsparser.service
 
 import android.app.Notification
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import de.infoware.smsparser.R
 import de.infoware.smsparser.tetra.TetraRawPortClient
 import de.infoware.smsparser.tetra.TetraSessionListener
+import de.infoware.smsparser.ui.TetraMainActivity
 import io.reactivex.disposables.CompositeDisposable
+
 
 /**
  * Android Service which runs in Background and observes new messages,
@@ -24,7 +29,25 @@ class TetraConnectionService : Service(), TetraSessionListener {
         super.onStartCommand(intent, flags, startId)
         chatClient = TetraRawPortClient()
         chatClient.startSession(applicationContext, this)
+
         startForeground(1, Notification())
+
+        /*
+         * When user blocks screen, something strong happens with garmin device.
+         * To overcome, restart the app, when screen is active again.
+         */
+        val screenStateFilter = IntentFilter()
+        screenStateFilter.addAction(Intent.ACTION_SCREEN_ON)
+        registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                stopSelf()
+                val launchIntent = Intent(context, TetraMainActivity::class.java)
+                launchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(launchIntent)
+            }
+
+        }, screenStateFilter)
+
         return START_STICKY
     }
 
