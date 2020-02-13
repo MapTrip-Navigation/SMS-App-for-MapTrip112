@@ -1,6 +1,7 @@
 package de.infoware.smsparser.ui.presenter
 
 import android.content.pm.PackageManager
+import de.infoware.android.mti.enums.ApiError
 import de.infoware.smsparser.data.DestinationInfo
 import de.infoware.smsparser.data.storage.DestinationDatabase
 import de.infoware.smsparser.domain.DestinationEraser
@@ -95,6 +96,22 @@ abstract class MainPresenter : TiPresenter<MainView>(),
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { view.updateDestinationInfoList(ArrayList()) }
             .subscribe()
+        )
+
+        handler.manageViewDisposable(view.getOnInitResultObservable()
+            .filter { it == ApiError.TIMEOUT }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { view.showMapTripIsNotStartedDialog() }
+        )
+
+        handler.manageViewDisposable(
+            view.getOnStartMapTripClickObservable()
+                .debounce(clickDebounceInMillis, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { view.startMapTrip() },
+                    { exception -> view.showToastMapTripNotFound() }
+                )
         )
     }
 

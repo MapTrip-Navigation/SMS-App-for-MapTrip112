@@ -8,6 +8,7 @@
     </string>
     <string name="ok">OK</string>
     <string name="maptrip_start_fail">MapTrip konnte nicht gestartet werden</string>
+    <string name="maptrip_is_not_running">MapTrip ist nicht gestartet. Möchten Sie MapTrip starten?</string>
     <string name="navigation_start_dialog_title">Neuer Einsatz</string>
     <string name="cancel">Abbrechen</string>
     <string name="start_navigation">Navigation</string>
