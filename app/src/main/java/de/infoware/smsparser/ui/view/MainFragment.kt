@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.jakewharton.rxrelay2.PublishRelay
 import de.infoware.android.mti.Api
 import de.infoware.android.mti.Navigation
+import de.infoware.android.mti.enums.ApiError
 import de.infoware.smsparser.R
 import de.infoware.smsparser.data.DataSource
 import de.infoware.smsparser.data.DestinationInfo
@@ -27,6 +28,9 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        Api.init()
+        Api.registerListener(this)
     }
 
     // Handles click on the neutral button of the dialog about not-granted permissions.
@@ -171,6 +175,13 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
         return onStartNavigationClickPublishRelay
     }
 
+    private var onStarMapTripClickPublishRelay = PublishRelay.create<Any>()
+
+    override fun getOnStartMapTripClickObservable(): Observable<Any> {
+        return onStarMapTripClickPublishRelay
+    }
+
+
     // Shows startSession navigation dialog.
     override fun showNavigationDialog(destinationInfo: DestinationInfo) {
         val builder = AlertDialog.Builder(activity!!)
@@ -210,4 +221,34 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
         return DestinationDatabase.getInstance(context!!)
     }
 
+    private val onApiInitResultPublishRelay = PublishRelay.create<ApiError>()
+    override fun initResult(requestId: Int, returnCode: ApiError) {
+        onApiInitResultPublishRelay.accept(returnCode)
+    }
+
+    override fun getOnInitResultObservable(): Observable<ApiError> {
+        return onApiInitResultPublishRelay
+    }
+
+    override fun showMapTripIsNotStartedDialog() {
+        val builder = AlertDialog.Builder(activity!!)
+
+        builder.setMessage(R.string.maptrip_is_not_running)
+            .setTitle(R.string.attention)
+
+        builder.setNegativeButton(R.string.cancel) { _, _ -> }
+
+        builder.setPositiveButton(R.string.ok) { _, _ ->
+            onStarMapTripClickPublishRelay.accept(Any())
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    override fun startMapTrip() {
+        val intent = activity?.packageManager?.getLaunchIntentForPackage(
+            getString(R.string.maptrip_package_name)
+        )
+        startActivity(intent)
+    }
 }
