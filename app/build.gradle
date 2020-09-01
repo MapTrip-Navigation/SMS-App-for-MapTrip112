@@ -34,17 +34,28 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file("../keystores/keystore-final.jks")
+            storePassword "123456"
+            keyAlias "maptrip"
+            keyPassword "123456"
+        }
+    }
+
     flavorDimensions "version"
     productFlavors {
         standardsms {
             dimension "version"
             applicationIdSuffix ".standardsms"
             versionNameSuffix "-standardsms"
+            signingConfig signingConfigs.release
         }
         tetrasms {
             dimension "version"
             applicationIdSuffix ".tetrasms"
             versionNameSuffix "-tetrasms"
+            signingConfig signingConfigs.release
         }
     }
 
