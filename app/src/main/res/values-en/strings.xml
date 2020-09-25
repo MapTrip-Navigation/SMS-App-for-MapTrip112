@@ -1,0 +1,15 @@
+<resources>
+    <string name="maptrip_package_name">de.infoware.maptrip.navi.license</string>
+    <string name="app_name">SMS MapTrip</string>
+    <string name="attention">Attention!</string>
+    <string name="permission_dialog_message">The necessary authorisations are required for the app to function properly. The app will now close. Please restart it and grant the permissions.
+    </string>
+    <string name="ok">OK</string>
+    <string name="maptrip_start_fail">MapTrip could not be launched</string>
+    <string name="maptrip_is_not_running">MapTrip is not launched. Do you want to launch MapTrip?</string>
+    <string name="navigation_start_dialog_title">New Destination</string>
+    <string name="cancel">Cancel</string>
+    <string name="start_navigation">Navigation</string>
+    <string name="delete">Delete</string>
+    <string name="delete_list">Delete list?</string>
+</resources>

@@ -10,6 +10,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import de.infoware.android.mti.Api
 import de.infoware.android.mti.Navigation
 import de.infoware.android.mti.enums.ApiError
+import de.infoware.android.mti.enums.Info
 import de.infoware.smsparser.R
 import de.infoware.smsparser.data.DataSource
 import de.infoware.smsparser.data.DestinationInfo
@@ -31,6 +32,7 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
 
         Api.init()
         Api.registerListener(this)
+        Navigation.registerListener(this)
     }
 
     // Handles click on the neutral button of the dialog about not-granted permissions.
@@ -200,17 +202,67 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
 
     // Starts maptrip with navigation to the provided destination.
     override fun startMapTripWithDestinationInfo(destinationInfo: DestinationInfo) {
-        val intent = activity?.packageManager?.getLaunchIntentForPackage(
-            getString(R.string.maptrip_package_name)
-        )
-        startActivity(intent)
+        start(destinationInfo)
+    }
+
+    private fun start(destinationInfo: DestinationInfo) {
+
+        val mtiCallback = object : MTIListenerStub {
+
+            override fun initResult(p0: Int, apiError: ApiError?) {
+                if(apiError == ApiError.OK) {
+                    Api.showServer()
+                    Navigation.setEmergencyRoutingEnabled(destinationInfo.blueLightRouting)
+                }
+                if(apiError == ApiError.TIMEOUT) {
+                    onStarMapTripClickPublishRelay.accept(Any())
+                }
+            }
+
+            override fun infoMsg(info: Info?, apiError: Int) {
+                if(info?.equals(Info.MAPTRIP_STARTED)!!) {
+                    Api.init()
+                }
+            }
+
+            override fun showServerResult(p0: Int, apiError: ApiError?) {
+                Navigation.stopNavigation()
+            }
+
+            override fun stopNavigationResult(p0: Int, apiError: ApiError?) {
+                if(apiError == ApiError.OK) {
+                    Navigation.insertDestinationAddress(0,
+                        destinationInfo.lat,
+                        destinationInfo.lon,
+                        destinationInfo.reason,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    )
+                }
+           }
+
+            override fun insertDestinationAddressResult(p0: Int, apiError: ApiError?) {
+                Navigation.startNavigation()
+            }
+
+            override fun startNavigationResult(p0: Int, apiError: ApiError?) {
+                Api.sendText(destinationInfo.reason)
+                uninitMtiCallbacks()
+            }
+
+        }
+        Api.registerListener(mtiCallback)
+        Navigation.registerListener(mtiCallback)
         Api.init()
-        Navigation.stopNavigation()
-        Navigation.appendDestinationCoordinate(destinationInfo.lat, destinationInfo.lon)
-        Navigation.startNavigation()
-        Api.sendText(destinationInfo.reason)
-        Navigation.setEmergencyRoutingEnabled(destinationInfo.blueLightRouting)
-        Api.showServer()
+    }
+
+    private fun uninitMtiCallbacks() {
+        Api.registerListener(null)
+        Navigation.registerListener(null)
     }
 
     override fun showToastMapTripNotFound() {

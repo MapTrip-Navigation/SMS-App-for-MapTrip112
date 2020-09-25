@@ -29,6 +29,8 @@ abstract class MainPresenter : TiPresenter<MainView>(),
 
     private val defaultNumberOfAffectedItems = 0
 
+    private val checkMapTripStarted = false
+
     override fun onAttachView(view: MainView) {
         super.onAttachView(view)
 
@@ -99,7 +101,7 @@ abstract class MainPresenter : TiPresenter<MainView>(),
         )
 
         handler.manageViewDisposable(view.getOnInitResultObservable()
-            .filter { it == ApiError.TIMEOUT }
+            .filter { it == ApiError.TIMEOUT && checkMapTripStarted }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { view.showMapTripIsNotStartedDialog() }
         )
