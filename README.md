@@ -1,72 +1,36 @@
-# Project Description
+# SMS App For MapTrip112
 
-## 1.1 SMS/Tetra App For MapTrip112
+SMS MapTrip112 is an app to start MapTrip from an incoming SMS. The app is based on our MapTripInterface (MTI) and uses built-in mechanism from Android OS to listen to the incoming standard SMS. When a new SMS is received, the app gets a notification from the Android OS and parses the SMS. If the SMS contains information in one of the known formats, the application comes to the foreground and suggests to start navigation.
 
-SMS and TETRA MapTrip112 are two Android Applications, which are based on a common code-base. That means, that any of these apps can process any of the messages, which follows the format conventions, that will be discussed later. 
-The difference between these two apps is related to the medium, which is used for listening to the new incoming messages.
+## Preview
+![](readme_res/readme_main_screen.png)
 
-## 1.2. SMS MapTrip112
+## Building the project.
 
-SMS MapTrip112 is an app, which uses built-in mechanism from Android OS to listen to the incoming standard SMS. When new SMS comes, the app gets a notification from the Android OS and parses the SMS. If the SMS contains information in one of the known formats, the application comes to the foreground and suggests to start navigation.
+This project contains different build variants, make sure to use the "standardsms" variant. You can either download the project or create a pull requests, and open it in Android Studio. Now that you have the code base you can adjust the code if wanted, and create an APK or build it directly on your device.
 
-## 1.3. TETRA MapTrip112
+## Using the App
 
-TETRA MapTrip112 is an app, which uses Garmin SDK and Garmin FMI cable to be able to listen to the TETRA network. Garmin SDK is a Low-level SDK, which means, it provides high flexibility, but requires some knowledge from the user about the infrastructure:
-- We listen all the time in the background for the new coming messages (Write the corresponding code ourselves)
-- Messages, which we receive over TETRA are encoded with HEX encoding.
-For example: Hello, world! → 48656C6C6F2C20776F726C6421
+In order to use this application you will need to have MapTrip installed on your device as well. If you do not have MapTrip yet, do not hesitate to [contact](https://www.infoware.de/kontakt/) us.
+For demo purposes, the use case requires that your application is already running. Currently it is not possible to parse SMS when the application is not launched. As you are ready to go, just send a message related to your medium in one of the formats addressed below.
+Once a message arrives, the application will parse it and if the message matches given patters it will launch and display a notification to start a navigation to the destination. It is not required that MapTrip is already running, the app will care for it if not. Depending on the "SoSi" tag in your message, MapTrip will also use emergency routing.
+Received messages will be stored in a SQLite Database so you can always start a navigation again to the destination.
 
-If the Message contains information in one of the known formats, the application comes to the foreground and suggests to start navigation.
+## Preview of MapTrip using emergency routing
+![](readme_res/readme_emergency_routing.png)
 
-## 1.4. Supported Formats
+## Supported Formats
 
-### 1.4.1 TVPN
-
-The message has the format of TVPN{LAT}E{LONG}. 
-Important aspects:
-- No decimal point in initial representation.
-- Moreover, coordinates are initially encoded with Hexadecimal representation with 8 digits.
-- After converting from Hexadimal, representation contains always 6 digits after the decimal point.
-
-As optional parameters, SoSi and Free Text parameters are available:
-- TVPN{LAT}E{LONG};SoSi - Sondersignal without free text;
-- TVPN{LAT}E{LONG};Zimmerbrand - Free text without Sondersignal;
-- TVPN{LAT}E{LONG};SoSi;Zimmerbrand - Both Sondresignal and Free text info.
-
-Examples:
-- TVPN03216774E00CC9C78
-- TVPN03216774E00CC9C78;SoSi
-- TVPN03216774E00CC9C78;Zimmerbrand
-- TVPN03216774E00CC9C780;SoSi;Zimmerbrand
-
-### 1.4.2 #K01
-
-The message has the format of #K01;N{LAT}E{LONG}
-Important aspects:
-- No decimal point in initial representation.
-- Representation contains always 5 digits after the decimal point.
-
-As optional parameters, SoSi and Free Text parameters are available:
-- #K01;N{LAT}E{LONG};SoSi - Sondersignal without free text;
-- #K01;N{LAT}E{LONG};Zimmerbrand - Free text without Sondersignal;
-- #K01;N{LAT}E{LONG};SoSi;Zimmerbrand - Both Sondresignal and Free text info.
-
-Examples:
-- #K01;N5252082E1340940
-- #K01;N5252082E1340940;SoSi
-- #K01;N5252082E1340940;Zimmerbrand
-- #K01;N5252082E1340940;SoSi;Zimmerbrand
-
-### 1.4.3 Default SMS Format:
+### Default SMS Format:
 
 The message has the format of {LAT}, {LONG}
 
 As optional parameters, SoSi and Free Text paramters are available:
 - {LAT}, {LONG}; SoSi
-- {LAT}, {LONG}; Zimmerbrand
-- {LAT}, {LONG}; SoSi; Zimmerbrand
+- {LAT}, {LONG}; FreeText
+- {LAT}, {LONG}; SoSi; FreeText
 
-Examples
+**Examples**
 - 51.2123544, 6.12548543
 - 51.2123544, 6.12548543;SoSi
 - 51.2123544, 6.12548543;Zimmerbrand Musterstrasse 26 3:OG
