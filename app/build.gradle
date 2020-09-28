@@ -38,7 +38,7 @@ android {
         release {
             storeFile file("../keystores/keystore-final.jks")
             storePassword "123456"
-            keyAlias "maptrip"
+            keyAlias "smsapp"
             keyPassword "123456"
         }
     }
