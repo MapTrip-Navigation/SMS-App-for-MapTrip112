@@ -1,6 +1,6 @@
 # SMS App For MapTrip112
 
-SMS [MapTrip112] (https://www.maptrip.de/112) is an app to start MapTrip from an incoming SMS. The app is based on our MapTripInterface (MTI) and uses built-in mechanism from Android OS to listen to the incoming standard SMS. When a new SMS is received, the app gets a notification from the Android OS and parses the SMS. If the SMS contains information in one of the known formats, the application comes to the foreground and suggests to start navigation.
+SMS [MapTrip112](https://www.maptrip.de/112) is an app to start MapTrip from an incoming SMS. The app is based on our MapTripInterface (MTI) and uses built-in mechanism from Android OS to listen to the incoming standard SMS. When a new SMS is received, the app gets a notification from the Android OS and parses the SMS. If the SMS contains information in one of the known formats, the application comes to the foreground and suggests to start navigation.
 
 ## Preview
 ![](readme_res/readme_main_screen.png)
