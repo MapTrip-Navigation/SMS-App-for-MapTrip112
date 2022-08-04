@@ -13,7 +13,7 @@ repositories {
         url "https://maven.google.com"
     }
     maven {
-        url "http://artifactory.infoware.de:8080/artifactory/libs-gradle/"
+        url "https://artifactory.infoware.de/artifactory/libs-gradle"
     }
 }
 
