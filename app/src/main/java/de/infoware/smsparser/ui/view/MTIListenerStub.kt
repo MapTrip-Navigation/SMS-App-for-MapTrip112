@@ -219,4 +219,20 @@ interface MTIListenerStub : ApiListener, NavigationListener {
     override fun getEmergencyRouteRadiusResult(p0: Int, p1: ApiError?, p2: Int) {
         
     }
+
+    override fun calculateRoutesResult(p0: Int, p1: ApiError?) {
+
+    }
+
+    override fun startTourResult(p0: Int, p1: ApiError?) {
+
+    }
+
+    override fun skipNextDestinationResult(p0: Int, p1: ApiError?) {
+
+    }
+
+    override fun setAsReferenceRouteResult(p0: Int, p1: ApiError?) {
+
+    }
 }
