@@ -31,8 +31,8 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
         setHasOptionsMenu(true)
 
         Api.init()
-        Api.registerListener(this)
-        Navigation.registerListener(this)
+        Api.addListener(this)
+        Navigation.addListener(this)
     }
 
     // Handles click on the neutral button of the dialog about not-granted permissions.
@@ -255,14 +255,14 @@ abstract class MainFragment : TiFragment<MainPresenter, MainView>(),
             }
 
         }
-        Api.registerListener(mtiCallback)
-        Navigation.registerListener(mtiCallback)
+        Api.addListener(mtiCallback)
+        Navigation.addListener(mtiCallback)
         Api.init()
     }
 
     private fun uninitMtiCallbacks() {
-        Api.registerListener(null)
-        Navigation.registerListener(null)
+        Api.removeListener(this)
+        Navigation.removeListener(this)
     }
 
     override fun showToastMapTripNotFound() {
